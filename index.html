@@ -7763,7 +7763,7 @@ function openAccountModal() {
         <p class="text-xs text-slate-400">同步内容：成交 / 计划 / 规则 / 违规 / 报告 / 信号等原始明细。派生指标在各设备本地重算，口径永远只有一套。</p>
       </div>` : `
       <div class="space-y-3 text-sm">
-        <label class="block text-xs text-slate-500">服务地址<input id="acc-server" class="mt-1 w-full border rounded-lg px-3 py-2 text-sm" value="http://127.0.0.1:8788"></label>
+        <label class="block text-xs text-slate-500">服务地址<input id="acc-server" class="mt-1 w-full border rounded-lg px-3 py-2 text-sm" value="${(JSON.parse(localStorage.getItem('trae_auth_v1') || 'null') || {}).serverUrl || location.origin}"></label>
         <label class="block text-xs text-slate-500">邮箱<input id="acc-email" type="email" class="mt-1 w-full border rounded-lg px-3 py-2 text-sm" placeholder="you@example.com"></label>
         <label class="block text-xs text-slate-500">密码<input id="acc-pass" type="password" class="mt-1 w-full border rounded-lg px-3 py-2 text-sm" placeholder="至少 6 位"></label>
         <div id="acc-msg" class="text-xs"></div>
