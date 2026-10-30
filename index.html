@@ -6,8 +6,17 @@
   <meta name="description" content="【演示版】A股散户交易复盘与纪律工具：交割单导入、复盘账本、基础归因看板、纪律执行率。全部数据本地 SQLite 存储，你的交割单不离开你的电脑。">
   <title>复盘工作台 · 演示版（本地模拟数据 · 双击即开）</title>
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%234f46e5'/><text x='50' y='68' font-size='52' text-anchor='middle' fill='white'>复</text></svg>">
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.10.3/sql-wasm.js"></script>
+  <script>
+  // 资源切换：file:// → CDN；http(s) → 同源 vendor/（详见 build_demo.py 注释）
+  (function () {
+    var isFile = location.protocol === 'file:';
+    var base = isFile
+      ? { tw: 'https://cdn.tailwindcss.com', sql: 'https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.10.3/sql-wasm.js' }
+      : { tw: 'vendor/tailwind.js', sql: 'vendor/sql-wasm.js' };
+    document.write('<script src="' + base.tw + '"><\/script>');
+    document.write('<script src="' + base.sql + '"><\/script>');
+  })();
+</script>
   <style>
 /* app.css — 原型自定义样式（Tailwind 之外的少量补充） */
 
@@ -97,8 +106,6 @@ td { font-variant-numeric: tabular-nums; }
 }
 
   </style>
-  <link rel="preconnect" href="https://cdn.tailwindcss.com" crossorigin>
-  <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
   <meta name="theme-color" content="#4f46e5">
   <link rel="canonical" href="https://yanghuawei94-crypto.github.io/review-workbench-demo/">
   <meta property="og:title" content="复盘工作台 · 演示版">
@@ -151,7 +158,12 @@ td { font-variant-numeric: tabular-nums; }
 // 「你的交割单不离开你的电脑」）
 // ============================================================
 
-const SQLJS_CDN = 'https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.10.3';
+// sql.js 资源基址：本地 file:// 双击打开 → CDN（单文件自包含）；
+// http(s) 部署（开发服务 / GitHub Pages / 自建 nginx）→ 同源 vendor/
+// （大陆访问 Cloudflare CDN（cdnjs）慢且不稳，同源资源快且可控；两个目录内容同版本 1.10.3）
+const SQLJS_CDN = location.protocol === 'file:'
+  ? 'https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.10.3'
+  : 'vendor';
 const IDB_NAME = 'astock_review_proto';
 const IDB_STORE = 'kv';
 const DUMP_KEY = 'sqlite_dump';

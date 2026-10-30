@@ -2,16 +2,17 @@
 // sw.js — 演示版 Service Worker（GitHub Pages 离线缓存）
 // 策略：
 //   - 页面导航（HTML）：网络优先，失败回缓存（保证拿到最新版，断网兜底）
-//   - 静态/CDN 资源：缓存优先，miss 时网络回填
-// precache：主文档 + Tailwind CDN + sql.js（js/wasm）——首访后完全离线可用
+//   - 静态资源：缓存优先，miss 时网络回填
+// precache：主文档 + 同源 vendor 三件（Tailwind / sql.js js+wasm）
+//   —— 静态资源已全部同源化（vendor/），无跨域 CORS 问题，cache.add 即可
 // 发版必改：CACHE 版本号递增（旧缓存自动清理）
 // ============================================================
-const CACHE = 'rw-demo-v2';
+const CACHE = 'rw-demo-v3';
 const PRECACHE = [
-  './',                                                        // 主文档
-  'https://cdn.tailwindcss.com',                               // Tailwind CDN
-  'https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.10.3/sql-wasm.js',
-  'https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.10.3/sql-wasm.wasm',
+  './',                      // 主文档
+  'vendor/tailwind.js',
+  'vendor/sql-wasm.js',
+  'vendor/sql-wasm.wasm',
 ];
 
 // 安装：逐个预缓存（单个失败不阻塞，仅该资源失去离线能力）
@@ -19,15 +20,6 @@ self.addEventListener('install', (event) => {
   event.waitUntil((async () => {
     const cache = await caches.open(CACHE);
     await Promise.all(PRECACHE.map(async (url) => {
-      if (url === 'https://cdn.tailwindcss.com') {
-        // 该 CDN 302 到版本化 URL 且不带 CORS 头，cache.add（CORS 模式）必失败；
-        // 改用 no-cors 存 opaque 响应——script 标签不受 CORS 限制，离线可正常执行
-        try {
-          const resp = await fetch(url, { mode: 'no-cors' });
-          await cache.put(url, resp);
-        } catch (e) { console.warn('[sw] precache 失败：', url, e.message); }
-        return;
-      }
       try { await cache.add(url); } catch (e) { console.warn('[sw] precache 失败：', url, e.message); }
     }));
     self.skipWaiting();
@@ -67,13 +59,13 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // 资源：缓存优先，miss 回网络并回填
+  // 资源：缓存优先，miss 回网络并回填（仅同源与 precache 清单，不代存第三方）
   event.respondWith((async () => {
     const cached = await caches.match(req, { ignoreSearch: true });
     if (cached) return cached;
     try {
       const resp = await fetch(req);
-      if (resp.ok && (req.url.startsWith(self.location.origin) || PRECACHE.includes(req.url))) {
+      if (resp.ok && req.url.startsWith(self.location.origin)) {
         const cache = await caches.open(CACHE);
         cache.put(req, resp.clone());
       }
