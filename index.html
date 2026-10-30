@@ -97,6 +97,16 @@ td { font-variant-numeric: tabular-nums; }
 }
 
   </style>
+  <link rel="preconnect" href="https://cdn.tailwindcss.com" crossorigin>
+  <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
+  <meta name="theme-color" content="#4f46e5">
+  <link rel="canonical" href="https://yanghuawei94-crypto.github.io/review-workbench-demo/">
+  <meta property="og:title" content="复盘工作台 · 演示版">
+  <meta property="og:description" content="A股散户交易复盘与纪律工具：交割单导入、复盘账本、归因看板、纪律执行率、影子账户反事实回放。数据本地存储，不离开你的电脑。">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://yanghuawei94-crypto.github.io/review-workbench-demo/">
+  <!-- manifest 仅线上存在；本地 file:// 打开时 404 无功能影响 -->
+  <link rel="manifest" href="manifest.json">
 </head>
 <body class="bg-slate-100 text-slate-800">
   <div id="boot-mask" class="fixed inset-0 bg-slate-100 flex items-center justify-center z-[100]">
@@ -7950,6 +7960,12 @@ function openAccountModal() {
   setTimeout(() => clearInterval(timer), 20000);   // 兜底防泄漏
 })();
 
+</script>
+<script>
+  // PWA：仅 http(s) 环境注册 Service Worker（本地 file:// 双击打开自动跳过）
+  if ('serviceWorker' in navigator && /^https?:$/.test(location.protocol)) {
+    navigator.serviceWorker.register('./sw.js').catch(function () {});
+  }
 </script>
 </body>
 </html>

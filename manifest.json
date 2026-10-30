@@ -1,0 +1,20 @@
+{
+  "name": "复盘工作台 · 演示版",
+  "short_name": "复盘工作台",
+  "description": "A股散户交易复盘与纪律工具：交割单导入、复盘账本、归因看板、纪律执行率、影子账户反事实回放。数据本地存储。",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#f8fafc",
+  "theme_color": "#4f46e5",
+  "lang": "zh-CN",
+  "icons": [
+    {
+      "src": "icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}
