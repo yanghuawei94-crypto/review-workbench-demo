@@ -6,7 +6,7 @@
 // precache：主文档 + Tailwind CDN + sql.js（js/wasm）——首访后完全离线可用
 // 发版必改：CACHE 版本号递增（旧缓存自动清理）
 // ============================================================
-const CACHE = 'rw-demo-v1';
+const CACHE = 'rw-demo-v2';
 const PRECACHE = [
   './',                                                        // 主文档
   'https://cdn.tailwindcss.com',                               // Tailwind CDN
@@ -19,6 +19,15 @@ self.addEventListener('install', (event) => {
   event.waitUntil((async () => {
     const cache = await caches.open(CACHE);
     await Promise.all(PRECACHE.map(async (url) => {
+      if (url === 'https://cdn.tailwindcss.com') {
+        // 该 CDN 302 到版本化 URL 且不带 CORS 头，cache.add（CORS 模式）必失败；
+        // 改用 no-cors 存 opaque 响应——script 标签不受 CORS 限制，离线可正常执行
+        try {
+          const resp = await fetch(url, { mode: 'no-cors' });
+          await cache.put(url, resp);
+        } catch (e) { console.warn('[sw] precache 失败：', url, e.message); }
+        return;
+      }
       try { await cache.add(url); } catch (e) { console.warn('[sw] precache 失败：', url, e.message); }
     }));
     self.skipWaiting();
